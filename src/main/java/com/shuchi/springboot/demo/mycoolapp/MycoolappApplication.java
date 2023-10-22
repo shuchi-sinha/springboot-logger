@@ -1,6 +1,7 @@
 package com.shuchi.springboot.demo.mycoolapp;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Date;
 import org.slf4j.Logger;
@@ -22,8 +23,8 @@ public class MycoolappApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		logger.info("Application starting " + SimpleDateFormat.getDateInstance().format(new Date()));
-		// new SimpleDateFormat("yyyy-mm-dd-hh-mm-ss").format(new Date());
+		//logger.info("Application starting " + SimpleDateFormat.getDateInstance().format(new Date()));
+		logger.info("Application starting " +LocalDate.now());
 		System.setProperty("https.protocols", "TLSv1, TLSv1.1, TLSv1.2");
 
 	}
