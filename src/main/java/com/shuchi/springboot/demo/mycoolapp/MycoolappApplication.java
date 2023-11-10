@@ -25,7 +25,6 @@ public class MycoolappApplication implements CommandLineRunner {
 		//logger.info("Application starting " + SimpleDateFormat.getDateInstance().format(new Date()));
 		logger.info("Application starting " +LocalDate.now());
 		System.setProperty("https.protocols", "TLSv1, TLSv1.1, TLSv1.2");
-
 	}
 
 	private static boolean validateArguments(String[] a, String args) {
