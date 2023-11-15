@@ -1,16 +1,29 @@
 package com.shuchi.springboot.demo.mycoolapp.rest;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.*;
 
 @RestController
 public class FunRestController {
@@ -36,9 +49,12 @@ public class FunRestController {
 
     // expose a new endpoint for "fortune"
 
-    @GetMapping("/fortune")
-    public String getDailyFortune() {
-        return "Fortune favors the brave";
+    @GetMapping("/encryptMe/{password}")
+    public String getDailyFortune(@PathVariable String password) {
+        String encrypted = new PwdEncryptDecrypt().encryptPassword(password);
+        return password + " encrypted : " + encrypted + "\n decrypted : "
+                + new PwdEncryptDecrypt().decryptPassword(encrypted);
+
     }
 
     private static JsonObject jsonBlock() throws Exception {
@@ -114,5 +130,45 @@ public class FunRestController {
             result = true;
         }
         return result;
+    }
+
+    // post HTTP response
+    public JsonObject postResponse(String endpoint, Object request){
+        try {
+            JsonObject responseObject=null;
+            RestTemplate resTemplate=new RestTemplate();
+            resTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+            ResponseEntity<String> response=resTemplate.postForEntity(endpoint, request,String.class);
+            Gson gson=new Gson();
+            responseObject=gson.fromJson(response.getBody(),JsonObject.class);
+            return responseObject;
+        } catch(HttpStatusCodeException hce){
+            log.error("error in response "+hce.getResponseBodyAsString());
+            throw hce;
+        }
+    }
+
+    JSONObject loadSchemaToJson(String schemaPath) {
+        JSONObject schemaJson = null;
+        BufferedReader streamReader = null;
+        StringBuilder responseStringBuilder = new StringBuilder();
+        InputStreamReader input = new InputStreamReader(
+                Objects.requireNonNull(getClass().getResourceAsStream(schemaPath)));
+        streamReader = new BufferedReader(input);
+        String inputStr;
+        try {
+            while ((inputStr = streamReader.readLine()) != null) {
+                responseStringBuilder.append(inputStr);
+            }
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        schemaJson = new JSONObject(responseStringBuilder.toString());
+        return schemaJson;
+
+    }
+    public List<String> getTokensWithCollection(String str, String delimiter){
+        return Collections.list(new StringTokenizer(str,delimiter)).stream().map(token -> (String) token).collect(Collectors.toList());
     }
 }
